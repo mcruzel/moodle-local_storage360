@@ -146,7 +146,7 @@ if ($action === 'delete' && confirm_sesskey()) {
             $file = $fs->get_file_by_id($fileid);
             if ($file && local_storage360_is_deletable($file, $tab, $allowedcomponents)) {
                 $totalsize += $file->get_filesize();
-                $filenames[] = $file->get_filename() . ' (' . local_storage360_format_size($file->get_filesize()) . ')';
+                $filenames[] = s($file->get_filename()) . ' (' . local_storage360_format_size($file->get_filesize()) . ')';
                 $validfileids[] = $fileid;
             }
         }
@@ -172,7 +172,7 @@ if ($action === 'delete' && confirm_sesskey()) {
         echo html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'sesskey', 'value' => sesskey()]);
         echo html_writer::empty_tag('input', ['type' => 'submit',
             'value' => get_string('cleanup:deleteselected', 'local_storage360'),
-            'class' => 'btn btn-danger mr-2']);
+            'class' => 'btn btn-danger me-2']);
         echo html_writer::link($cancelurl, get_string('cancel'), ['class' => 'btn btn-secondary']);
         echo html_writer::end_tag('form');
 
@@ -267,7 +267,7 @@ if (empty($result->records)) {
                 $actions .= html_writer::link(
                     new moodle_url('/course/view.php', ['id' => $record->courseid]),
                     get_string('cleanup:managecourse', 'local_storage360'),
-                    ['class' => 'btn btn-sm btn-outline-secondary mr-1']
+                    ['class' => 'btn btn-sm btn-outline-secondary me-1']
                 );
             }
             $actions .= $deletebtn;
@@ -313,7 +313,7 @@ if (empty($result->records)) {
                 html_writer::link(
                     new moodle_url('/user/files.php', ['userid' => $record->userid]),
                     get_string('users:privatefiles', 'local_storage360'),
-                    ['class' => 'btn btn-sm btn-outline-secondary mr-1']
+                    ['class' => 'btn btn-sm btn-outline-secondary me-1']
                 ) . $deletebtn,
             ];
         }
@@ -345,16 +345,14 @@ echo '
       <div class="modal-header">
         <h5 class="modal-title" id="storage360-delete-modal-label">' .
             get_string('cleanup:confirmdeletetitle', 'local_storage360') . '</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="' . get_string('cancel') . '">
-          <span aria-hidden="true">&times;</span>
-        </button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="' . get_string('cancel') . '"></button>
       </div>
       <div class="modal-body">
         <p>' . get_string('cleanup:confirmdeletebody', 'local_storage360') . '</p>
         <p><strong id="storage360-delete-filename"></strong> (<span id="storage360-delete-filesize"></span>)</p>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">' . get_string('cancel') . '</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">' . get_string('cancel') . '</button>
         <form method="post" action="' .
             (new moodle_url('/local/storage360/pages/cleanup.php',
                 ['action' => 'delete', 'confirm' => 1, 'tab' => $tab]))->out(false) . '" style="display:inline">

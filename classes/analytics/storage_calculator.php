@@ -676,9 +676,10 @@ class storage_calculator {
 
         $sortcol = ($sort === 'lastname') ? "u.{$sort}" : "s.{$sort}";
 
+        $usernamefields = \core_user\fields::for_name()->get_sql('u', false, '', '', false)->selects;
+
         $sql = "SELECT u.id,
-                       u.firstname,
-                       u.lastname,
+                       {$usernamefields},
                        u.email,
                        s.private_files,
                        s.draft_files,
@@ -738,9 +739,10 @@ class storage_calculator {
             $params['minsize'] = $minsize;
         }
 
+        $usernamefields = \core_user\fields::for_name()->get_sql('u', false, '', '', false)->selects;
+
         $sql = "SELECT u.id,
-                       u.firstname,
-                       u.lastname,
+                       {$usernamefields},
                        u.email,
                        COALESCE(SUM(CASE WHEN f.component = 'user' AND f.filearea = 'private'
                                     THEN f.filesize ELSE 0 END), 0) as private_files,
@@ -753,7 +755,7 @@ class storage_calculator {
                   FROM {user} u
              LEFT JOIN {files} f ON f.userid = u.id AND f.filename != '.'
                  WHERE u.deleted = 0 {$where}
-                 GROUP BY u.id, u.firstname, u.lastname, u.email
+                 GROUP BY u.id, {$usernamefields}, u.email
                  {$havingsql}
                  ORDER BY {$sort} {$dir}";
 
@@ -1017,8 +1019,9 @@ class storage_calculator {
         $users = [];
         if (!empty($userids)) {
             list($insql, $inparams) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
+            $usernamefields = implode(', ', array_merge(['id'], \core_user\fields::for_name()->get_required_fields()));
             $users = $DB->get_records_sql(
-                "SELECT id, firstname, lastname FROM {user} WHERE id {$insql}",
+                "SELECT {$usernamefields} FROM {user} WHERE id {$insql}",
                 $inparams
             );
         }

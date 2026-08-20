@@ -115,9 +115,9 @@ echo html_writer::end_div();
 // Buttons.
 echo html_writer::start_div('col-md-4');
 echo html_writer::empty_tag('input', ['type' => 'submit', 'value' => get_string('filter', 'local_storage360'),
-    'class' => 'btn btn-primary mr-2']);
+    'class' => 'btn btn-primary me-2']);
 $reseturl = new moodle_url('/local/storage360/pages/users.php');
-echo html_writer::link($reseturl, get_string('reset', 'local_storage360'), ['class' => 'btn btn-secondary mr-2']);
+echo html_writer::link($reseturl, get_string('reset', 'local_storage360'), ['class' => 'btn btn-secondary me-2']);
 $csvurl = new moodle_url('/local/storage360/pages/users.php', [
     'exportcsv' => 1, 'sesskey' => sesskey(), 'search' => $search, 'minsize' => $minsize, 'sort' => $sort, 'dir' => $dir,
 ]);
@@ -167,7 +167,7 @@ if (empty($result->records)) {
         $lastupload = $record->last_upload ? userdate($record->last_upload) : '-';
 
         $actions = html_writer::link($storagefilesurl, get_string('files:viewfiles', 'local_storage360'),
-                ['class' => 'btn btn-sm btn-outline-info mr-1']) .
+                ['class' => 'btn btn-sm btn-outline-info me-1']) .
             html_writer::link($moodlefilesurl, get_string('users:privatefiles', 'local_storage360'),
                 ['class' => 'btn btn-sm btn-outline-primary']);
 

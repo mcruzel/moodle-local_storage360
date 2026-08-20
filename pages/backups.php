@@ -226,12 +226,12 @@ echo html_writer::end_div();
 echo html_writer::start_div('col-md-4');
 echo html_writer::empty_tag('input', [
     'type' => 'submit', 'value' => get_string('filter', 'local_storage360'),
-    'class' => 'btn btn-primary mr-2',
+    'class' => 'btn btn-primary me-2',
 ]);
 echo html_writer::link(
     new moodle_url('/local/storage360/pages/backups.php'),
     get_string('reset', 'local_storage360'),
-    ['class' => 'btn btn-secondary mr-2']
+    ['class' => 'btn btn-secondary me-2']
 );
 echo html_writer::link(
     new moodle_url('/local/storage360/pages/backups.php', [
@@ -288,7 +288,7 @@ if (empty($result->records)) {
         // Clickable badge for backup count — opens modal.
         $countbadge = html_writer::tag('a', (int) $record->backup_count, [
             'href' => '#',
-            'class' => 'badge badge-info storage360-backup-count',
+            'class' => 'badge text-bg-info storage360-backup-count',
             'data-courseid' => $record->id,
             'data-coursename' => s($record->fullname),
             'title' => get_string('backups:viewfiles', 'local_storage360'),
@@ -321,36 +321,45 @@ if (empty($result->records)) {
                 'component' => 'backup', 'courseid' => $record->id,
             ]),
             get_string('backups:viewfiles', 'local_storage360'),
-            ['class' => 'btn btn-sm btn-outline-info mr-1']
+            ['class' => 'btn btn-sm btn-outline-info me-1']
         );
 
         // Disable/Enable button (only for users with deletefiles capability).
+        // Submitted via POST form to avoid state-changing actions through GET.
         if (has_capability('local/storage360:deletefiles', $context)) {
+            $stateurl = new moodle_url('/local/storage360/pages/backups.php', [
+                'sort' => $sort, 'dir' => $dir, 'search' => $search, 'page' => $page,
+            ]);
             if (!empty($record->nextstarttime) && (int) $record->nextstarttime > 0) {
-                $actions .= html_writer::link(
-                    new moodle_url('/local/storage360/pages/backups.php', [
-                        'action' => 'disable', 'courseid' => $record->id,
-                        'sesskey' => sesskey(),
-                        'sort' => $sort, 'dir' => $dir, 'search' => $search, 'page' => $page,
-                    ]),
-                    get_string('backups:disable', 'local_storage360'),
-                    [
-                        'class' => 'btn btn-sm btn-outline-warning mr-1',
-                        'onclick' => "return confirm('" .
-                            addslashes_js(get_string('backups:confirmdisable', 'local_storage360')) . "');",
-                    ]
-                );
+                $stateaction = 'disable';
+                $statelabel = get_string('backups:disable', 'local_storage360');
+                $stateattrs = [
+                    'type' => 'submit',
+                    'class' => 'btn btn-sm btn-outline-warning me-1',
+                    'onclick' => "return confirm('" .
+                        addslashes_js(get_string('backups:confirmdisable', 'local_storage360')) . "');",
+                ];
             } else {
-                $actions .= html_writer::link(
-                    new moodle_url('/local/storage360/pages/backups.php', [
-                        'action' => 'enable', 'courseid' => $record->id,
-                        'sesskey' => sesskey(),
-                        'sort' => $sort, 'dir' => $dir, 'search' => $search, 'page' => $page,
-                    ]),
-                    get_string('backups:enable', 'local_storage360'),
-                    ['class' => 'btn btn-sm btn-outline-success mr-1']
-                );
+                $stateaction = 'enable';
+                $statelabel = get_string('backups:enable', 'local_storage360');
+                $stateattrs = [
+                    'type' => 'submit',
+                    'class' => 'btn btn-sm btn-outline-success me-1',
+                ];
             }
+            $actions .= html_writer::start_tag('form', [
+                'method' => 'post',
+                'action' => $stateurl->out(false),
+                'class' => 'd-inline',
+            ]);
+            $actions .= html_writer::empty_tag('input',
+                ['type' => 'hidden', 'name' => 'sesskey', 'value' => sesskey()]);
+            $actions .= html_writer::empty_tag('input',
+                ['type' => 'hidden', 'name' => 'action', 'value' => $stateaction]);
+            $actions .= html_writer::empty_tag('input',
+                ['type' => 'hidden', 'name' => 'courseid', 'value' => $record->id]);
+            $actions .= html_writer::tag('button', $statelabel, $stateattrs);
+            $actions .= html_writer::end_tag('form');
 
             // Set date button — opens inline form.
             $actions .= html_writer::tag('button',
@@ -379,15 +388,13 @@ echo '
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="storage360-backups-modal-label"></h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="' . get_string('cancel') . '">
-          <span aria-hidden="true">&times;</span>
-        </button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="' . get_string('cancel') . '"></button>
       </div>
       <div class="modal-body" id="storage360-backups-modal-body">
         <div class="text-center"><div class="spinner-border" role="status"></div></div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">' . get_string('cancel') . '</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">' . get_string('cancel') . '</button>
       </div>
     </div>
   </div>
@@ -401,9 +408,7 @@ echo '
       <div class="modal-header">
         <h5 class="modal-title" id="storage360-setdate-modal-label">' .
             get_string('backups:setdate', 'local_storage360') . '</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="' . get_string('cancel') . '">
-          <span aria-hidden="true">&times;</span>
-        </button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="' . get_string('cancel') . '"></button>
       </div>
       <form method="post" action="' . (new moodle_url('/local/storage360/pages/backups.php'))->out(false) . '">
         <div class="modal-body">
@@ -421,7 +426,7 @@ echo '
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">' . get_string('cancel') . '</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">' . get_string('cancel') . '</button>
           <button type="submit" class="btn btn-primary">' . get_string('backups:setdate', 'local_storage360') . '</button>
         </div>
       </form>

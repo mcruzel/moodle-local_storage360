@@ -75,8 +75,12 @@ Modifiable dans **Administration > Serveur > Tâches planifiées**.
 
 ## Prérequis
 
-- Moodle 4.1 ou supérieur
-- PHP 8.0+
+- Moodle 5.0 à 5.2 (l'interface repose sur Bootstrap 5, intégré à Moodle depuis la 5.0)
+- PHP 8.2+ pour Moodle 5.0/5.1 ; PHP 8.3 à 8.4 pour Moodle 5.2 (PHP 64 bits requis)
+- Bases de données minimales pour Moodle 5.2 : PostgreSQL 16, MySQL 8.4, MariaDB 10.11, SQL Server 2019
+
+> **Note** : depuis Moodle 5.1 (restructuration du webroot), le plugin s'installe sous
+> `public/local/storage360` au lieu de `local/storage360`.
 
 ## Tests
 

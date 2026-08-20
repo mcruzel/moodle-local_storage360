@@ -122,7 +122,7 @@ if (!empty($growthrate->data_pending)) {
 echo html_writer::tag('small',
     get_string('dashboard:nextupdate', 'local_storage360',
         userdate($growthrate->next_update, get_string('strftimetime', 'langconfig'))),
-    ['class' => 'text-muted d-block text-right mt-2']);
+    ['class' => 'text-muted d-block text-end mt-2']);
 echo html_writer::end_div();
 echo html_writer::end_div();
 echo html_writer::end_div();
@@ -172,7 +172,7 @@ if ($scanprogress !== null) {
         echo html_writer::tag('p',
             html_writer::tag('span',
                 get_string('scan:anomalies_found', 'local_storage360', $scanprogress->anomalies),
-                ['class' => 'badge badge-warning']
+                ['class' => 'badge text-bg-warning']
             ) . ' ' . implode(' | ', $anomalyparts),
             ['class' => 'mb-0']
         );
@@ -180,7 +180,7 @@ if ($scanprogress !== null) {
         echo html_writer::tag('p',
             html_writer::tag('span',
                 get_string('scan:all_ok', 'local_storage360'),
-                ['class' => 'badge badge-success']
+                ['class' => 'badge text-bg-success']
             ),
             ['class' => 'mb-0']
         );
@@ -192,7 +192,7 @@ if ($scanprogress !== null) {
             . ' (' . local_storage360_format_size($scanprogress->orphan_size) . ')';
         $orphansurl = new moodle_url('/local/storage360/pages/orphans.php');
         echo html_writer::tag('p',
-            html_writer::tag('span', $orphantext, ['class' => 'badge badge-warning'])
+            html_writer::tag('span', $orphantext, ['class' => 'badge text-bg-warning'])
             . ' ' . html_writer::link($orphansurl, get_string('nav:orphans', 'local_storage360'),
                 ['class' => 'small']),
             ['class' => 'mb-0 mt-1']
@@ -233,7 +233,7 @@ if ($diskspace) {
     echo html_writer::tag('p', get_string('dashboard:diskfree', 'local_storage360') . ': ' .
         local_storage360_format_size($diskspace->free));
     echo html_writer::tag('p', get_string('dashboard:diskpercent', 'local_storage360') . ': ' .
-        $diskspace->percent . '%', ['class' => 'font-weight-bold']);
+        $diskspace->percent . '%', ['class' => 'fw-bold']);
     echo html_writer::end_div();
 } else {
     echo html_writer::tag('p', get_string('dashboard:nodiskinfo', 'local_storage360'), ['class' => 'text-muted']);

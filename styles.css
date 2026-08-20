@@ -40,7 +40,7 @@
 }
 
 /* Badge for hidden courses */
-.local-storage360 .badge-secondary {
+.local-storage360 .text-bg-secondary {
     font-size: 0.75em;
     vertical-align: middle;
 }
