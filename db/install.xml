@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="local/storage360/db" VERSION="20250212" COMMENT="XMLDB file for local_storage360"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
+>
+  <TABLES>
+    <TABLE NAME="local_storage360_history" COMMENT="Historical storage statistics snapshots">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Unix timestamp of snapshot"/>
+        <FIELD NAME="total_files" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="total_size" TYPE="int" LENGTH="20" NOTNULL="true" DEFAULT="0" COMMENT="Total size in bytes"/>
+        <FIELD NAME="disk_total" TYPE="int" LENGTH="20" NOTNULL="false" COMMENT="Total disk space in bytes"/>
+        <FIELD NAME="disk_free" TYPE="int" LENGTH="20" NOTNULL="false" COMMENT="Free disk space in bytes"/>
+        <FIELD NAME="by_component" TYPE="text" NOTNULL="false" COMMENT="JSON-encoded breakdown by component"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_timecreated" UNIQUE="false" FIELDS="timecreated"/>
+      </INDEXES>
+    </TABLE>
+
+    <TABLE NAME="local_storage360_course_snap" COMMENT="Per-course storage snapshots">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="total_size" TYPE="int" LENGTH="20" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="file_count" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="backup_size" TYPE="int" LENGTH="20" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="assignment_size" TYPE="int" LENGTH="20" NOTNULL="true" DEFAULT="0"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="fk_courseid" TYPE="foreign" FIELDS="courseid" REFTABLE="course" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_courseid_time" UNIQUE="false" FIELDS="courseid, timecreated"/>
+      </INDEXES>
+    </TABLE>
+
+    <TABLE NAME="local_storage360_user_snap" COMMENT="Per-user storage snapshots">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="total_size" TYPE="int" LENGTH="20" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="file_count" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="private_files" TYPE="int" LENGTH="20" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="draft_files" TYPE="int" LENGTH="20" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="assignment_files" TYPE="int" LENGTH="20" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="last_upload" TYPE="int" LENGTH="10" NOTNULL="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="fk_userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_userid_time" UNIQUE="false" FIELDS="userid, timecreated"/>
+        <INDEX NAME="idx_timecreated" UNIQUE="false" FIELDS="timecreated"/>
+      </INDEXES>
+    </TABLE>
+
+    <TABLE NAME="local_storage360_deletelog" COMMENT="Audit log of files deleted via Storage 360">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="fileid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Original file ID from mdl_files"/>
+        <FIELD NAME="filename" TYPE="char" LENGTH="255" NOTNULL="true"/>
+        <FIELD NAME="filepath" TYPE="char" LENGTH="255" NOTNULL="true" DEFAULT="/"/>
+        <FIELD NAME="filesize" TYPE="int" LENGTH="20" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="contenthash" TYPE="char" LENGTH="40" NOTNULL="false" COMMENT="SHA1 content hash for disk verification"/>
+        <FIELD NAME="mimetype" TYPE="char" LENGTH="255" NOTNULL="false"/>
+        <FIELD NAME="component" TYPE="char" LENGTH="100" NOTNULL="true"/>
+        <FIELD NAME="filearea" TYPE="char" LENGTH="50" NOTNULL="true"/>
+        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="Resolved course ID at deletion time"/>
+        <FIELD NAME="coursename" TYPE="char" LENGTH="254" NOTNULL="false" COMMENT="Course name snapshot"/>
+        <FIELD NAME="owneruserid" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="User who owned the file"/>
+        <FIELD NAME="ownerfullname" TYPE="char" LENGTH="254" NOTNULL="false" COMMENT="Owner name snapshot"/>
+        <FIELD NAME="deletedby" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="User who performed the deletion"/>
+        <FIELD NAME="source" TYPE="char" LENGTH="50" NOTNULL="true" DEFAULT="cleanup" COMMENT="cleanup_backups, cleanup_drafts, files_browser"/>
+        <FIELD NAME="timedeleted" TYPE="int" LENGTH="10" NOTNULL="true"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_timedeleted" UNIQUE="false" FIELDS="timedeleted"/>
+        <INDEX NAME="idx_deletedby" UNIQUE="false" FIELDS="deletedby"/>
+        <INDEX NAME="idx_component" UNIQUE="false" FIELDS="component"/>
+      </INDEXES>
+    </TABLE>
+
+    <TABLE NAME="local_storage360_scanresult" COMMENT="Integrity scan results: one row per unique contenthash">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="contenthash" TYPE="char" LENGTH="40" NOTNULL="true" COMMENT="SHA1 content hash from mdl_files"/>
+        <FIELD NAME="filesize_db" TYPE="int" LENGTH="20" NOTNULL="true" COMMENT="Expected file size from mdl_files"/>
+        <FIELD NAME="filesize_disk" TYPE="int" LENGTH="20" NOTNULL="false" COMMENT="Actual file size on disk, NULL if missing"/>
+        <FIELD NAME="ref_count" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" COMMENT="Number of references in mdl_files"/>
+        <FIELD NAME="status" TYPE="int" LENGTH="2" NOTNULL="true" COMMENT="0=ok, 1=missing, 2=size_mismatch, 3=in_trash, 4=orphan"/>
+        <FIELD NAME="timescanned" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Unix timestamp of scan"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="uq_contenthash" UNIQUE="true" FIELDS="contenthash"/>
+        <INDEX NAME="idx_status" UNIQUE="false" FIELDS="status"/>
+        <INDEX NAME="idx_timescanned" UNIQUE="false" FIELDS="timescanned"/>
+      </INDEXES>
+    </TABLE>
+  </TABLES>
+</XMLDB>

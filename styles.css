@@ -1,0 +1,46 @@
+/* Storage 360 custom styles */
+
+/* KPI cards */
+.local-storage360 .card {
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.2s;
+}
+
+.local-storage360 .card:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Gauge colors */
+.storage360-gauge-green {
+    color: #28a745;
+}
+
+.storage360-gauge-orange {
+    color: #ffc107;
+}
+
+.storage360-gauge-red {
+    color: #dc3545;
+}
+
+/* Table tweaks */
+.local-storage360 .table th a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.local-storage360 .table th a:hover {
+    text-decoration: underline;
+}
+
+/* Chart containers */
+.local-storage360 canvas {
+    max-height: 250px;
+}
+
+/* Badge for hidden courses */
+.local-storage360 .badge-secondary {
+    font-size: 0.75em;
+    vertical-align: middle;
+}
