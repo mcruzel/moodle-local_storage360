@@ -24,17 +24,24 @@ define([], function() {
      * @param {HTMLElement} modal The modal element.
      */
     function showModal(modal) {
-        require(['theme_boost/bootstrap/modal'], function(Modal) {
-            Modal.getOrCreateInstance(modal).show();
-        }, function() {
-            // Fallback when the theme module is not available.
+        var fallback = function() {
             if (typeof window.jQuery !== 'undefined' && window.jQuery.fn && window.jQuery.fn.modal) {
                 window.jQuery(modal).modal('show');
             } else {
                 modal.classList.add('show');
                 modal.style.display = 'block';
             }
-        });
+        };
+        require(['theme_boost/bootstrap/modal'], function(ModalModule) {
+            // The theme module is a transpiled ES module: the AMD factory receives the
+            // namespace object, so the Modal class lives in its default export.
+            var ModalClass = (ModalModule && ModalModule.default) ? ModalModule.default : ModalModule;
+            if (ModalClass && typeof ModalClass.getOrCreateInstance === 'function') {
+                ModalClass.getOrCreateInstance(modal).show();
+            } else {
+                fallback();
+            }
+        }, fallback);
     }
 
     return {
