@@ -139,22 +139,22 @@ if (!empty($monthly)) {
 }
 
 // Prepare chart data.
-$historyLabels = [];
-$historySizes = [];
+$historylabels = [];
+$historysizes = [];
 foreach ($history as $h) {
-    $historyLabels[] = userdate($h->timecreated, '%Y-%m-%d');
-    $historySizes[] = (int) $h->total_size;
+    $historylabels[] = userdate($h->timecreated, '%Y-%m-%d');
+    $historysizes[] = (int) $h->total_size;
 }
 
-$monthlyLabels = [];
-$monthlySizes = [];
-$cumulativeSizes = [];
+$monthlylabels = [];
+$monthlysizes = [];
+$cumulativesizes = [];
 $cumulative = 0;
 foreach ($monthly as $m) {
-    $monthlyLabels[] = $m->month;
-    $monthlySizes[] = $m->size_added;
+    $monthlylabels[] = $m->month;
+    $monthlysizes[] = $m->size_added;
     $cumulative += $m->size_added;
-    $cumulativeSizes[] = $cumulative;
+    $cumulativesizes[] = $cumulative;
 }
 
 // Build by-component history data from the by_component JSON in each snapshot.
@@ -169,11 +169,11 @@ $componentcategories = [
     'course' => get_string('timeline:coursefiles', 'local_storage360'),
 ];
 
-$componentHistoryLabels = [];
-$componentSeries = []; // category => [size per snapshot]
+$componenthistorylabels = [];
+$componentseries = []; // category => [size per snapshot]
 
 foreach ($history as $idx => $h) {
-    $componentHistoryLabels[] = userdate($h->timecreated, '%Y-%m-%d');
+    $componenthistorylabels[] = userdate($h->timecreated, '%Y-%m-%d');
     $bycomp = !empty($h->by_component) ? json_decode($h->by_component, true) : [];
 
     // Aggregate by category.
@@ -209,15 +209,15 @@ foreach ($history as $idx => $h) {
     }
 
     foreach ($snapshot as $cat => $size) {
-        if (!isset($componentSeries[$cat])) {
+        if (!isset($componentseries[$cat])) {
             // Back-fill with zeros for all previous snapshots.
-            $componentSeries[$cat] = array_fill(0, $idx, 0);
+            $componentseries[$cat] = array_fill(0, $idx, 0);
         }
-        $componentSeries[$cat][] = $size;
+        $componentseries[$cat][] = $size;
     }
 
     // Fill zeros for categories not present in this snapshot.
-    foreach ($componentSeries as $cat => &$arr) {
+    foreach ($componentseries as $cat => &$arr) {
         if (count($arr) <= $idx) {
             $arr[] = 0;
         }
@@ -226,7 +226,7 @@ foreach ($history as $idx => $h) {
 }
 
 // Build Chart.js datasets from the series.
-$componentColors = [
+$componentcolors = [
     'backup' => '#dc3545',
     'assignsubmission_file' => '#fd7e14',
     'mod_resource' => '#28a745',
@@ -237,25 +237,25 @@ $componentColors = [
     '_other' => '#6c757d',
 ];
 
-$componentDatasets = [];
+$componentdatasets = [];
 // Sort by total size descending so the biggest category is at the bottom of the stack.
-$categoryTotals = [];
-foreach ($componentSeries as $cat => $sizes) {
-    $categoryTotals[$cat] = array_sum($sizes);
+$categorytotals = [];
+foreach ($componentseries as $cat => $sizes) {
+    $categorytotals[$cat] = array_sum($sizes);
 }
-arsort($categoryTotals);
+arsort($categorytotals);
 
-foreach ($categoryTotals as $cat => $total) {
+foreach ($categorytotals as $cat => $total) {
     if ($total <= 0) {
         continue;
     }
     $label = isset($componentcategories[$cat])
         ? $componentcategories[$cat]
         : get_string('timeline:otherfiles', 'local_storage360');
-    $color = $componentColors[$cat] ?? '#' . substr(md5($cat), 0, 6);
-    $componentDatasets[] = [
+    $color = $componentcolors[$cat] ?? '#' . substr(md5($cat), 0, 6);
+    $componentdatasets[] = [
         'label' => $label,
-        'data' => $componentSeries[$cat],
+        'data' => $componentseries[$cat],
         'backgroundColor' => $color . '66',
         'borderColor' => $color,
         'fill' => true,
@@ -304,10 +304,10 @@ require(['core/chartjs'], function(ChartModule) {
         new Chart(histCtx.getContext('2d'), {
             type: 'line',
             data: {
-                labels: " . json_encode($historyLabels) . ",
+                labels: " . json_encode($historylabels) . ",
                 datasets: [{
                     label: 'Total storage',
-                    data: " . json_encode($historySizes) . ",
+                    data: " . json_encode($historysizes) . ",
                     borderColor: '#007bff',
                     backgroundColor: 'rgba(0,123,255,0.1)',
                     fill: true,
@@ -325,8 +325,8 @@ require(['core/chartjs'], function(ChartModule) {
         new Chart(compCtx.getContext('2d'), {
             type: 'line',
             data: {
-                labels: " . json_encode($componentHistoryLabels) . ",
-                datasets: " . json_encode($componentDatasets) . "
+                labels: " . json_encode($componenthistorylabels) . ",
+                datasets: " . json_encode($componentdatasets) . "
             },
             options: {
                 responsive: true,
@@ -356,12 +356,12 @@ require(['core/chartjs'], function(ChartModule) {
     // Monthly additions bar chart.
     var monthCtx = document.getElementById('monthlyChart');
     if (monthCtx) {
-        var monthlyData = " . json_encode($monthlySizes) . ";
+        var monthlyData = " . json_encode($monthlysizes) . ";
         var barColors = monthlyData.map(function(v) { return v >= 0 ? '#28a745' : '#dc3545'; });
         new Chart(monthCtx.getContext('2d'), {
             type: 'bar',
             data: {
-                labels: " . json_encode($monthlyLabels) . ",
+                labels: " . json_encode($monthlylabels) . ",
                 datasets: [{
                     label: " . json_encode(get_string('timeline:monthlyadditions', 'local_storage360')) . ",
                     data: monthlyData,
@@ -378,10 +378,10 @@ require(['core/chartjs'], function(ChartModule) {
         new Chart(cumCtx.getContext('2d'), {
             type: 'line',
             data: {
-                labels: " . json_encode($monthlyLabels) . ",
+                labels: " . json_encode($monthlylabels) . ",
                 datasets: [{
                     label: 'Cumulative storage',
-                    data: " . json_encode($cumulativeSizes) . ",
+                    data: " . json_encode($cumulativesizes) . ",
                     borderColor: '#17a2b8',
                     backgroundColor: 'rgba(23,162,184,0.1)',
                     fill: true,

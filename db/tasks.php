@@ -27,7 +27,6 @@ defined('MOODLE_INTERNAL') || die();
 $tasks = [
     [
         'classname' => 'local_storage360\task\collect_storage_stats',
-        'blocking' => 0,
         'minute' => '0',
         'hour' => '3',
         'day' => '*',
@@ -36,7 +35,6 @@ $tasks = [
     ],
     [
         'classname' => 'local_storage360\task\integrity_scan',
-        'blocking' => 0,
         'minute' => '*',
         'hour' => '*',
         'day' => '*',

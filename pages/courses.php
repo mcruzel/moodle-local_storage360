@@ -140,9 +140,9 @@ echo html_writer::end_div();
 // Buttons.
 echo html_writer::start_div('col-md-3');
 echo html_writer::empty_tag('input', ['type' => 'submit', 'value' => get_string('filter', 'local_storage360'),
-    'class' => 'btn btn-primary mr-2']);
+    'class' => 'btn btn-primary me-2']);
 $reseturl = new moodle_url('/local/storage360/pages/courses.php');
-echo html_writer::link($reseturl, get_string('reset', 'local_storage360'), ['class' => 'btn btn-secondary mr-2']);
+echo html_writer::link($reseturl, get_string('reset', 'local_storage360'), ['class' => 'btn btn-secondary me-2']);
 $csvurl = new moodle_url('/local/storage360/pages/courses.php', [
     'exportcsv' => 1, 'sesskey' => sesskey(), 'categoryid' => $categoryid, 'minsize' => $minsize, 'visible' => $visible,
     'search' => $search, 'sort' => $sort, 'dir' => $dir,
@@ -198,7 +198,7 @@ if (empty($result->records)) {
         $filesurl = new moodle_url('/local/storage360/pages/files.php', ['courseid' => $record->id]);
 
         $actions = html_writer::link($filesurl, get_string('files:viewfiles', 'local_storage360'),
-                ['class' => 'btn btn-sm btn-outline-info mr-1']) .
+                ['class' => 'btn btn-sm btn-outline-info me-1']) .
             html_writer::link($manageurl, get_string('cleanup:managecourse', 'local_storage360'),
                 ['class' => 'btn btn-sm btn-outline-primary']);
 
@@ -206,7 +206,7 @@ if (empty($result->records)) {
             html_writer::link($courseurl, format_string($record->fullname)) .
                 ($record->visible ? '' : ' ' . html_writer::tag('span',
                     get_string('courses:hidden', 'local_storage360'),
-                    ['class' => 'badge badge-secondary'])),
+                    ['class' => 'badge text-bg-secondary'])),
             local_storage360_format_size((int) $record->total_size),
             number_format((int) $record->file_count),
             local_storage360_format_size((int) $record->backup_size),

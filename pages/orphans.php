@@ -252,23 +252,30 @@ if ($result->total === 0) {
         $actions .= html_writer::link(
             $downloadurl,
             get_string('orphans:download', 'local_storage360'),
-            ['class' => 'btn btn-sm btn-outline-secondary mr-1']
+            ['class' => 'btn btn-sm btn-outline-secondary me-1']
         );
 
-        // Delete button.
+        // Delete button (POST form to avoid destructive action via GET).
         if ($candelete) {
             $deleteurl = new moodle_url('/local/storage360/pages/orphans.php', [
                 'action' => 'delete',
-                'deleteid' => $record->id,
                 'page' => $page,
-                'sesskey' => sesskey(),
             ]);
-            $actions .= html_writer::link(
-                $deleteurl,
+            $actions .= html_writer::start_tag('form', [
+                'method' => 'post',
+                'action' => $deleteurl->out(false),
+                'class' => 'd-inline',
+            ]);
+            $actions .= html_writer::empty_tag('input',
+                ['type' => 'hidden', 'name' => 'sesskey', 'value' => sesskey()]);
+            $actions .= html_writer::empty_tag('input',
+                ['type' => 'hidden', 'name' => 'deleteid', 'value' => $record->id]);
+            $actions .= html_writer::tag('button',
                 get_string('orphans:delete', 'local_storage360'),
-                ['class' => 'btn btn-sm btn-danger',
+                ['type' => 'submit', 'class' => 'btn btn-sm btn-danger',
                  'onclick' => 'return confirm(' . json_encode(get_string('orphans:delete_confirm', 'local_storage360')) . ');']
             );
+            $actions .= html_writer::end_tag('form');
         }
 
         $row[] = $actions;

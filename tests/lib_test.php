@@ -84,7 +84,7 @@ class lib_test extends \advanced_testcase {
     public function test_get_tabs_count(): void {
         $this->resetAfterTest(true);
         $tabs = local_storage360_get_tabs('dashboard');
-        $this->assertCount(6, $tabs);
+        $this->assertCount(10, $tabs);
     }
 
     /**
@@ -113,6 +113,10 @@ class lib_test extends \advanced_testcase {
         $this->assertContains('users', $ids);
         $this->assertContains('components', $ids);
         $this->assertContains('timeline', $ids);
+        $this->assertContains('files', $ids);
         $this->assertContains('cleanup', $ids);
+        $this->assertContains('backups', $ids);
+        $this->assertContains('deletelog', $ids);
+        $this->assertContains('orphans', $ids);
     }
 }

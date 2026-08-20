@@ -148,7 +148,8 @@ if ($courseid > 0) {
     }
 }
 if ($userid > 0) {
-    $user = $DB->get_record('user', ['id' => $userid], 'id,firstname,lastname', IGNORE_MISSING);
+    $namefields = implode(',', array_merge(['id'], \core_user\fields::for_name()->get_required_fields()));
+    $user = $DB->get_record('user', ['id' => $userid], $namefields, IGNORE_MISSING);
     if ($user) {
         $filterdesc[] = get_string('files:filteruser', 'local_storage360', fullname($user));
     }
@@ -207,7 +208,7 @@ echo html_writer::end_div();
 // Buttons.
 echo html_writer::start_div('col-md-3');
 echo html_writer::empty_tag('input', ['type' => 'submit', 'value' => get_string('filter', 'local_storage360'),
-    'class' => 'btn btn-primary mr-2']);
+    'class' => 'btn btn-primary me-2']);
 
 $resetparams = [];
 if ($courseid > 0) {
@@ -217,7 +218,7 @@ if ($userid > 0) {
     $resetparams['userid'] = $userid;
 }
 $reseturl = new moodle_url('/local/storage360/pages/files.php', $resetparams);
-echo html_writer::link($reseturl, get_string('reset', 'local_storage360'), ['class' => 'btn btn-secondary mr-2']);
+echo html_writer::link($reseturl, get_string('reset', 'local_storage360'), ['class' => 'btn btn-secondary me-2']);
 
 $csvparams = [
     'exportcsv' => 1, 'sesskey' => sesskey(), 'courseid' => $courseid, 'userid' => $userid,
@@ -310,32 +311,32 @@ if (empty($result->records)) {
             switch ($scanstatus) {
                 case 0:
                     $diskbadge = html_writer::tag('span', '&#10003;',
-                        ['class' => 'badge badge-success',
+                        ['class' => 'badge text-bg-success',
                          'title' => get_string('scan:status_ok', 'local_storage360')]);
                     break;
                 case 1:
                     $diskbadge = html_writer::tag('span', '&#10007;',
-                        ['class' => 'badge badge-danger',
+                        ['class' => 'badge text-bg-danger',
                          'title' => get_string('scan:status_missing', 'local_storage360')]);
                     break;
                 case 2:
                     $diskbadge = html_writer::tag('span', '&#9888;',
-                        ['class' => 'badge badge-warning',
+                        ['class' => 'badge text-bg-warning',
                          'title' => get_string('scan:status_mismatch', 'local_storage360')]);
                     break;
                 case 3:
                     $diskbadge = html_writer::tag('span', '&#128465;',
-                        ['class' => 'badge badge-secondary',
+                        ['class' => 'badge text-bg-secondary',
                          'title' => get_string('scan:status_intrash', 'local_storage360')]);
                     break;
                 default:
                     $diskbadge = html_writer::tag('span', '?',
-                        ['class' => 'badge badge-light',
+                        ['class' => 'badge text-bg-light',
                          'title' => get_string('scan:status_pending', 'local_storage360')]);
             }
         } else {
             $diskbadge = html_writer::tag('span', '?',
-                ['class' => 'badge badge-light',
+                ['class' => 'badge text-bg-light',
                  'title' => get_string('scan:status_pending', 'local_storage360')]);
         }
 
@@ -389,16 +390,14 @@ if ($candelete) {
       <div class="modal-header">
         <h5 class="modal-title" id="storage360-delete-modal-label">' .
             get_string('cleanup:confirmdeletetitle', 'local_storage360') . '</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="' . get_string('cancel') . '">
-          <span aria-hidden="true">&times;</span>
-        </button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="' . get_string('cancel') . '"></button>
       </div>
       <div class="modal-body">
         <p>' . get_string('cleanup:confirmdeletebody', 'local_storage360') . '</p>
         <p><strong id="storage360-delete-filename"></strong> (<span id="storage360-delete-filesize"></span>)</p>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">' . get_string('cancel') . '</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">' . get_string('cancel') . '</button>
         <form method="post" action="' . $deleteaction->out(true) . '" style="display:inline">
           <input type="hidden" name="sesskey" value="' . sesskey() . '">
           <input type="hidden" name="fileids[]" id="storage360-delete-fileid" value="">

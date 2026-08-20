@@ -63,4 +63,26 @@ class file_deleted extends \core\event\base {
     public function get_url(): \moodle_url {
         return new \moodle_url('/local/storage360/pages/cleanup.php');
     }
+
+    /**
+     * Returns the objectid mapping for backup/restore.
+     *
+     * The deleted file no longer exists, so the id cannot be mapped on restore.
+     *
+     * @return array
+     */
+    public static function get_objectid_mapping() {
+        return ['db' => 'files', 'restore' => \core\event\base::NOT_MAPPED];
+    }
+
+    /**
+     * Returns the mapping of the 'other' fields for backup/restore.
+     *
+     * No ids in 'other' need to be mapped.
+     *
+     * @return bool
+     */
+    public static function get_other_mapping() {
+        return false;
+    }
 }

@@ -19,16 +19,22 @@ define([], function() {
     }
 
     /**
-     * Show a Bootstrap modal using jQuery if available, fallback to classList.
+     * Show a Bootstrap modal using the Bootstrap 5 API exposed by theme_boost,
+     * with a fallback to the legacy jQuery plugin or plain classes.
      * @param {HTMLElement} modal The modal element.
      */
     function showModal(modal) {
-        if (typeof window.jQuery !== 'undefined') {
-            window.jQuery(modal).modal('show');
-        } else {
-            modal.classList.add('show');
-            modal.style.display = 'block';
-        }
+        require(['theme_boost/bootstrap/modal'], function(Modal) {
+            Modal.getOrCreateInstance(modal).show();
+        }, function() {
+            // Fallback when the theme module is not available.
+            if (typeof window.jQuery !== 'undefined' && window.jQuery.fn && window.jQuery.fn.modal) {
+                window.jQuery(modal).modal('show');
+            } else {
+                modal.classList.add('show');
+                modal.style.display = 'block';
+            }
+        });
     }
 
     return {
@@ -96,7 +102,7 @@ define([], function() {
                             files.forEach(function(file) {
                                 html += '<tr>';
                                 html += '<td>' + escapeHtml(file.filename) + '</td>';
-                                html += '<td><span class="badge badge-secondary">' +
+                                html += '<td><span class="badge text-bg-secondary">' +
                                         escapeHtml(file.filearea) + '</span></td>';
                                 html += '<td>' + escapeHtml(file.filesize) + '</td>';
                                 html += '<td>' + escapeHtml(file.timecreated) + '</td>';

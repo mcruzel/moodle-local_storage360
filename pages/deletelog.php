@@ -167,22 +167,22 @@ if ($showcleanresult && !empty($SESSION->storage360_cleanresult)) {
     if ($cleanedcount > 0) {
         echo html_writer::tag('span',
             get_string('deletelog:cleanresult_cleaned', 'local_storage360', $cleanedcount),
-            ['class' => 'badge badge-success mr-2 mb-1']);
+            ['class' => 'badge text-bg-success me-2 mb-1']);
     }
     if ($skippedcount > 0) {
         echo html_writer::tag('span',
             get_string('deletelog:cleanresult_skipped', 'local_storage360', $skippedcount),
-            ['class' => 'badge badge-info mr-2 mb-1']);
+            ['class' => 'badge text-bg-info me-2 mb-1']);
     }
     if ($alreadycount > 0) {
         echo html_writer::tag('span',
             get_string('deletelog:cleanresult_already', 'local_storage360', $alreadycount),
-            ['class' => 'badge badge-secondary mr-2 mb-1']);
+            ['class' => 'badge text-bg-secondary me-2 mb-1']);
     }
     if ($failedcount > 0) {
         echo html_writer::tag('span',
             get_string('deletelog:cleanresult_failed', 'local_storage360', $failedcount),
-            ['class' => 'badge badge-danger mr-2 mb-1']);
+            ['class' => 'badge text-bg-danger me-2 mb-1']);
     }
 
     echo html_writer::end_div();
@@ -229,28 +229,40 @@ echo html_writer::end_div();
 // Buttons.
 echo html_writer::start_div('col-md-4');
 echo html_writer::empty_tag('input', ['type' => 'submit', 'value' => get_string('filter', 'local_storage360'),
-    'class' => 'btn btn-primary mr-2']);
+    'class' => 'btn btn-primary me-2']);
 $reseturl = new moodle_url('/local/storage360/pages/deletelog.php');
-echo html_writer::link($reseturl, get_string('reset', 'local_storage360'), ['class' => 'btn btn-secondary mr-2']);
+echo html_writer::link($reseturl, get_string('reset', 'local_storage360'), ['class' => 'btn btn-secondary me-2']);
 $csvurl = new moodle_url('/local/storage360/pages/deletelog.php', [
     'exportcsv' => 1, 'sesskey' => sesskey(), 'search' => $search, 'source' => $source, 'sort' => $sort, 'dir' => $dir,
 ]);
-echo html_writer::link($csvurl, get_string('exportcsv', 'local_storage360'), ['class' => 'btn btn-outline-secondary mr-2']);
+echo html_writer::link($csvurl, get_string('exportcsv', 'local_storage360'), ['class' => 'btn btn-outline-secondary me-2']);
 $verifyurl = new moodle_url('/local/storage360/pages/deletelog.php', [
     'verify' => 1, 'search' => $search, 'source' => $source, 'sort' => $sort, 'dir' => $dir, 'page' => $page,
 ]);
 echo html_writer::link($verifyurl, get_string('deletelog:verifydisk', 'local_storage360'),
-    ['class' => 'btn btn-outline-warning mr-2']);
-$trashurl = new moodle_url('/local/storage360/pages/deletelog.php', [
-    'emptytrash' => 1, 'sesskey' => sesskey(),
-    'search' => $search, 'source' => $source, 'sort' => $sort, 'dir' => $dir, 'page' => $page,
-]);
-echo html_writer::link($trashurl, get_string('deletelog:emptytrash', 'local_storage360'),
-    ['class' => 'btn btn-outline-danger',
+    ['class' => 'btn btn-outline-warning me-2']);
+// Destructive action submitted via POST: the button references the hidden form below
+// (declared outside the GET filter form, as forms cannot be nested).
+echo html_writer::tag('button', get_string('deletelog:emptytrash', 'local_storage360'),
+    ['type' => 'submit', 'form' => 'storage360-emptytrash-form',
+     'class' => 'btn btn-outline-danger',
      'onclick' => 'return confirm(' . json_encode(get_string('deletelog:emptytrashconfirm', 'local_storage360')) . ');']);
 echo html_writer::end_div();
 
 echo html_writer::end_div();
+echo html_writer::end_tag('form');
+
+// Hidden POST form for the empty-trash action.
+$trashurl = new moodle_url('/local/storage360/pages/deletelog.php');
+echo html_writer::start_tag('form', ['method' => 'post', 'action' => $trashurl->out(false),
+    'id' => 'storage360-emptytrash-form', 'class' => 'd-none']);
+echo html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'emptytrash', 'value' => 1]);
+echo html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'sesskey', 'value' => sesskey()]);
+echo html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'search', 'value' => $search]);
+echo html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'source', 'value' => $source]);
+echo html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'sort', 'value' => $sort]);
+echo html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'dir', 'value' => $dir]);
+echo html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'page', 'value' => $page]);
 echo html_writer::end_tag('form');
 
 // Results.
@@ -320,13 +332,13 @@ if (empty($records)) {
 
         // Source badge.
         $sourcelabel = $sourceoptions[$record->source] ?? $record->source;
-        $badgeclass = 'badge badge-secondary';
+        $badgeclass = 'badge text-bg-secondary';
         if ($record->source === 'cleanup_backups') {
-            $badgeclass = 'badge badge-warning';
+            $badgeclass = 'badge text-bg-warning';
         } else if ($record->source === 'cleanup_drafts') {
-            $badgeclass = 'badge badge-info';
+            $badgeclass = 'badge text-bg-info';
         } else if ($record->source === 'files_browser') {
-            $badgeclass = 'badge badge-danger';
+            $badgeclass = 'badge text-bg-danger';
         }
 
         $row = new html_table_row();
@@ -351,22 +363,22 @@ if (empty($records)) {
                     $isremoved = true;
                     $cells[] = html_writer::tag('span',
                         get_string('deletelog:status_removed', 'local_storage360'),
-                        ['class' => 'badge badge-success']);
+                        ['class' => 'badge text-bg-success']);
                 } else if ($diskcheck->status === 'trash') {
                     $cells[] = html_writer::tag('span',
                         get_string('deletelog:status_trash', 'local_storage360'),
-                        ['class' => 'badge badge-warning']);
+                        ['class' => 'badge text-bg-warning']);
                 } else if ($diskcheck->status === 'referenced') {
                     $cells[] = html_writer::tag('span',
                         get_string('deletelog:status_referenced', 'local_storage360', $diskcheck->db_references),
-                        ['class' => 'badge badge-info']);
+                        ['class' => 'badge text-bg-info']);
                 } else {
                     $cells[] = html_writer::tag('span',
                         get_string('deletelog:status_orphan', 'local_storage360'),
-                        ['class' => 'badge badge-danger']);
+                        ['class' => 'badge text-bg-danger']);
                 }
             } else {
-                $cells[] = html_writer::tag('span', 'N/A', ['class' => 'badge badge-secondary']);
+                $cells[] = html_writer::tag('span', 'N/A', ['class' => 'badge text-bg-secondary']);
             }
         }
 

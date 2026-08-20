@@ -170,7 +170,8 @@ function local_storage360_log_deletion(\stored_file $file, string $source): void
     $owneruserid = $file->get_userid();
     $ownerfullname = null;
     if ($owneruserid) {
-        $owner = $DB->get_record('user', ['id' => $owneruserid], 'id,firstname,lastname', IGNORE_MISSING);
+        $namefields = implode(',', array_merge(['id'], \core_user\fields::for_name()->get_required_fields()));
+        $owner = $DB->get_record('user', ['id' => $owneruserid], $namefields, IGNORE_MISSING);
         if ($owner) {
             $ownerfullname = fullname($owner);
         }
@@ -355,19 +356,19 @@ function local_storage360_backup_status_badge(int $status): string {
     $label = local_storage360_backup_status_label($status);
     switch ($status) {
         case 1:
-            $badgeclass = 'badge badge-success';
+            $badgeclass = 'badge text-bg-success';
             break;
         case 0:
-            $badgeclass = 'badge badge-danger';
+            $badgeclass = 'badge text-bg-danger';
             break;
         case 2:
-            $badgeclass = 'badge badge-warning';
+            $badgeclass = 'badge text-bg-warning';
             break;
         case 3:
-            $badgeclass = 'badge badge-secondary';
+            $badgeclass = 'badge text-bg-secondary';
             break;
         default:
-            $badgeclass = 'badge badge-light';
+            $badgeclass = 'badge text-bg-light';
     }
     return html_writer::tag('span', $label, ['class' => $badgeclass]);
 }
