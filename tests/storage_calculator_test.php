@@ -332,6 +332,49 @@ class storage_calculator_test extends \advanced_testcase {
     }
 
     /**
+     * Test get_courses_backups search by course id does not throw a DML exception.
+     *
+     * Regression: search WHERE used alias c without aliasing {course}.
+     */
+    public function test_get_courses_backups_search_by_id(): void {
+        $course = $this->getDataGenerator()->create_course();
+        $this->create_test_file($course, 'backup', 'automated', 1024);
+
+        $result = $this->calculator->get_courses_backups(
+            0, 50, 'backup_totalsize', 'DESC', (string) $course->id
+        );
+
+        $this->assertObjectHasProperty('records', $result);
+        $this->assertObjectHasProperty('totalcount', $result);
+        $ids = array_map('intval', array_column($result->records, 'id'));
+        $this->assertContains((int) $course->id, $ids);
+    }
+
+    /**
+     * Test get_courses_backups search by course name does not throw a DML exception.
+     */
+    public function test_get_courses_backups_search_by_name(): void {
+        $course = $this->getDataGenerator()->create_course([
+            'fullname' => 'UniqueBackupSearchCourse',
+        ]);
+        $this->create_test_file($course, 'backup', 'automated', 1024);
+
+        $result = $this->calculator->get_courses_backups(
+            0, 50, 'backup_totalsize', 'DESC', 'UniqueBackupSearchCourse'
+        );
+
+        $this->assertGreaterThanOrEqual(1, $result->totalcount);
+        $found = false;
+        foreach ($result->records as $record) {
+            if ((int) $record->id === (int) $course->id) {
+                $found = true;
+                break;
+            }
+        }
+        $this->assertTrue($found, 'Search should find the course by fullname');
+    }
+
+    /**
      * Test get_backups returns correct structure.
      */
     public function test_get_backups(): void {

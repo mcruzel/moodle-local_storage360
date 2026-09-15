@@ -1231,9 +1231,9 @@ class storage_calculator {
         }
 
         $courses = $DB->get_records_sql(
-            "SELECT id, fullname, shortname, visible
-               FROM {course}
-              WHERE id {$insql} {$searchwhere}",
+            "SELECT c.id, c.fullname, c.shortname, c.visible
+               FROM {course} c
+              WHERE c.id {$insql} {$searchwhere}",
             $inparams
         );
 
