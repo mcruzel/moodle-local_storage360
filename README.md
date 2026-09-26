@@ -40,7 +40,11 @@ Plugin Moodle de type `local` offrant une vision complète du stockage de la pla
 
 1. Copier le dossier `local/storage360/` dans le répertoire `local/` de votre Moodle
 2. Aller dans **Administration du site > Notifications** pour lancer l'installation
-3. Configurer dans **Administration du site > Serveur > Storage 360**
+3. Configurer dans **Administration du site > Serveur > Storage 360 > Paramètres**
+
+Les pages du plugin (tableau de bord, analyses, nettoyage…) sont listées dans la même catégorie
+**Administration du site > Serveur > Storage 360**, chacune n'apparaissant qu'aux utilisateurs
+disposant de la capability requise par la page.
 
 ## Configuration
 
@@ -98,8 +102,8 @@ vendor/bin/phpunit local/storage360/tests/events_test.php
 ```
 local/storage360/
 ├── version.php                     # Métadonnées plugin
-├── settings.php                    # Paramètres admin
-├── lib.php                         # Navigation + helpers
+├── settings.php                    # Paramètres admin + entrées du menu d'administration
+├── lib.php                         # Helpers
 ├── index.php                       # Redirect dashboard
 ├── styles.css                      # CSS personnalisé
 ├── classes/analytics/              # Moteur d'analyse
