@@ -24,8 +24,35 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+// Site administration > Server > Storage 360 groups the plugin pages and its settings page.
+// The pages are declared in the admin tree (not added from a navigation callback) so that each
+// entry exists only once in the settings navigation built from this tree.
+$ADMIN->add('server', new admin_category('local_storage360_category', get_string('pluginname', 'local_storage360')));
+
+// Each page is listed only for users holding the capability the page itself requires.
+$storage360pages = [
+    'dashboard' => 'local/storage360:view',
+    'courses' => 'local/storage360:viewdetails',
+    'users' => 'local/storage360:viewdetails',
+    'components' => 'local/storage360:viewdetails',
+    'timeline' => 'local/storage360:view',
+    'files' => 'local/storage360:viewdetails',
+    'cleanup' => 'local/storage360:deletefiles',
+    'backups' => 'local/storage360:viewdetails',
+    'deletelog' => 'local/storage360:deletefiles',
+    'orphans' => 'local/storage360:view',
+];
+foreach ($storage360pages as $pagename => $capability) {
+    $ADMIN->add('local_storage360_category', new admin_externalpage(
+        'local_storage360_' . $pagename,
+        get_string('nav:' . $pagename, 'local_storage360'),
+        new moodle_url('/local/storage360/pages/' . $pagename . '.php'),
+        $capability
+    ));
+}
+
 if ($hassiteconfig) {
-    $settings = new admin_settingpage('local_storage360', get_string('pluginname', 'local_storage360'));
+    $settings = new admin_settingpage('local_storage360', get_string('settings'));
 
     // Disk space calculation method.
     $settings->add(new admin_setting_configselect(
@@ -110,5 +137,5 @@ if ($hassiteconfig) {
         PARAM_INT
     ));
 
-    $ADMIN->add('server', $settings);
+    $ADMIN->add('local_storage360_category', $settings);
 }
